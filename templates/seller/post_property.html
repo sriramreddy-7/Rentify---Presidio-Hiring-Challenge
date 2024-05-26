@@ -1,0 +1,58 @@
+{% extends  'seller/navbar.html'%}
+
+{% block body %}
+<div class="container my-2 py-2">
+    <h2>Post Property</h2>
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="form-group">
+            <label for="title">Title:</label>
+            <input type="text" class="form-control" id="title" name="title" required>
+        </div>
+        <div class="form-group">
+            <label for="description">Description:</label>
+            <textarea class="form-control" id="description" name="description" required></textarea>
+        </div>
+        <div class="form-group">
+            <label for="location">Location:</label>
+            <input type="text" class="form-control" id="location" name="location" required>
+        </div>
+        <div class="form-group">
+            <label for="area">Area (sq ft):</label>
+            <input type="number" class="form-control" id="area" name="area" required>
+        </div>
+        <div class="form-group">
+            <label for="bedrooms">Bedrooms:</label>
+            <input type="number" class="form-control" id="bedrooms" name="bedrooms" required>
+        </div>
+        <div class="form-group">
+            <label for="bathrooms">Bathrooms:</label>
+            <input type="number" class="form-control" id="bathrooms" name="bathrooms" required>
+        </div>
+        <div class="form-group">
+            <label for="nearby_hospitals">Nearby Hospitals:</label>
+            <textarea class="form-control" id="nearby_hospitals" name="nearby_hospitals" required></textarea>
+        </div>
+        <div class="form-group">
+            <label for="nearby_colleges">Nearby Colleges:</label>
+            <textarea class="form-control" id="nearby_colleges" name="nearby_colleges" required></textarea>
+        </div>
+        <div>
+            <label for="price">Price:</label>
+            <input type="number" class="form-control" id="price" name="price" required>
+        </div>
+        &nbsp;
+        <div class="form-group">
+            <label for="photos">Property Photos:</label>
+            <input type="file" class="form-control" id="photos" name="photos" multiple>
+        </div>
+       
+           &nbsp;
+           <center>
+            <button type="submit" class="btn btn-primary">Post Property</button>
+           </center>
+        
+    </form>
+</div>
+</body>
+{% endblock %}

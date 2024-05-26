@@ -17,7 +17,8 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 from rentals import views
-
+from django.conf import settings
+from django.conf.urls.static import static
 
 
 urlpatterns = [
@@ -27,8 +28,22 @@ urlpatterns = [
     path("",views.index,name="index"),
     path("user_login",views.user_login,name="user_login"),
     path("register",views.register,name="register"),
-    path("buyer_dashboard",views.buyer_dashboard,name="buyer_dashboard"),
+   
+    
+    # seller_urls
     path("seller_dashboard",views.seller_dashboard,name="seller_dashboard"),
+    path('post_property/', views.post_property, name='post_property'),
+    path('seller_properties/', views.seller_properties, name='seller_properties'),
+    path('update_property/<int:property_id>/', views.update_property, name='update_property'),
+    path('delete_property/<int:property_id>/', views.delete_property, name='delete_property'),
     
     
+    
+    # buyer_urls 
+    path("buyer_dashboard",views.buyer_dashboard,name="buyer_dashboard"),
+    path('express_interest/<int:property_id>/', views.express_interest, name='express_interest'),
+    path('property_filter/', views.property_filter, name='property_filter'),
+    path('property/<int:property_id>/', views.property_detail, name='property_detail'),
 ]
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

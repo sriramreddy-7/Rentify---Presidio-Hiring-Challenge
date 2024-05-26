@@ -1,8 +1,8 @@
 # core/views.py
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect,get_object_or_404
 from django.contrib.auth import login, authenticate
 from django.contrib.auth.models import User
-from rentals.models import Property ,UserProfile
+from rentals.models import Property ,UserProfile ,PropertyPhoto
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse ,HttpResponse
 
@@ -63,61 +63,107 @@ def user_login(request):
 def seller_dashboard(request):
     return render(request,'seller/seller_dashboard.html')
 
+
 def buyer_dashboard(request):
-    return render(request,'buyer/buyer_dashboard.html')
+    properties = Property.objects.all()    
+    return render(request,'buyer/buyer_dashboard.html',{'properties': properties})
+
+def post_property(request):
+    if request.method == 'POST':
+        title = request.POST['title']
+        description = request.POST['description']
+        location = request.POST['location']
+        area = request.POST['area']
+        bedrooms = request.POST['bedrooms']
+        bathrooms = request.POST['bathrooms']
+        nearby_hospitals = request.POST['nearby_hospitals']
+        nearby_colleges = request.POST['nearby_colleges']
+        photos = request.FILES.getlist('photos')
+
+        property = Property(
+            owner=request.user,
+            title=title,
+            description=description,
+            location=location,
+            area=area,
+            bedrooms=bedrooms,
+            bathrooms=bathrooms,
+            nearby_hospitals=nearby_hospitals,
+            nearby_colleges=nearby_colleges
+        )
+        property.save()
+
+        for photo in photos:
+            PropertyPhoto.objects.create(property=property, photo=photo)
+
+        return redirect('seller_properties')
+
+    return render(request, 'seller/post_property.html')
+
+
+def seller_properties(request):
+    properties = Property.objects.filter(owner=request.user)
+    return render(request, 'seller/seller_properties.html', {'properties': properties})
 
 
 
-# def home(request):
-#     properties = Property.objects.all()
-#     return render(request, 'home.html', {'properties': properties})
+@login_required
+def update_property(request, property_id):
+    property = get_object_or_404(Property, id=property_id, owner=request.user)
 
-# @login_required
-# def post_property(request):
-#     if request.method == 'POST':
-#         title = request.POST['title']
-#         description = request.POST['description']
-#         location = request.POST['location']
-#         area = request.POST['area']
-#         bedrooms = request.POST['bedrooms']
-#         bathrooms = request.POST['bathrooms']
-#         nearby_hospitals = request.POST['nearby_hospitals']
-#         nearby_colleges = request.POST['nearby_colleges']
-#         property = Property(owner=request.user, title=title, description=description, location=location, area=area, bedrooms=bedrooms, bathrooms=bathrooms, nearby_hospitals=nearby_hospitals, nearby_colleges=nearby_colleges)
-#         property.save()
-#         return redirect('home')
-#     return render(request, 'post_property.html')
+    if request.method == 'POST':
+        property.title = request.POST['title']
+        property.description = request.POST['description']
+        property.location = request.POST['location']
+        property.area = request.POST['area']
+        property.bedrooms = request.POST['bedrooms']
+        property.bathrooms = request.POST['bathrooms']
+        property.nearby_hospitals = request.POST['nearby_hospitals']
+        property.nearby_colleges = request.POST['nearby_colleges']
+        property.save()
 
-# @login_required
-# def my_properties(request):
-#     properties = Property.objects.filter(owner=request.user)
-#     return render(request, 'my_properties.html', {'properties': properties})
+        return redirect('seller_properties')
 
-# @login_required
-# def update_property(request, property_id):
-#     property = Property.objects.get(id=property_id, owner=request.user)
-#     if request.method == 'POST':
-#         property.title = request.POST['title']
-#         property.description = request.POST['description']
-#         property.location = request.POST['location']
-#         property.area = request.POST['area']
-#         property.bedrooms = request.POST['bedrooms']
-#         property.bathrooms = request.POST['bathrooms']
-#         property.nearby_hospitals = request.POST['nearby_hospitals']
-#         property.nearby_colleges = request.POST['nearby_colleges']
-#         property.save()
-#         return redirect('my_properties')
-#     return render(request, 'update_property.html', {'property': property})
+    return render(request, 'seller/update_property.html', {'property': property})
 
-# @login_required
-# def delete_property(request, property_id):
-#     property = Property.objects.get(id=property_id, owner=request.user)
-#     property.delete()
-#     return redirect('my_properties')
+@login_required
+def delete_property(request, property_id):
+    property = get_object_or_404(Property, id=property_id, owner=request.user)
+    if request.method == 'POST':
+        property.delete()
+        return redirect('seller_properties')
+    return render(request, 'seller/delete_property.html', {'property': property})  
 
-# @login_required
-# def like_property(request, property_id):
-#     property = Property.objects.get(id=property_id)
-#     property.likes += 1
-#     property.save()
-#     return JsonResponse({'likes': property.likes})
+
+
+###buyer views
+
+
+def property_detail(request, property_id):
+    property = get_object_or_404(Property, id=property_id)
+    return render(request, 'buyer/property_detail.html', {'property': property})
+
+
+def property_filter(request):
+    properties = Property.objects.all()
+    if 'location' in request.GET:
+        properties = properties.filter(location__icontains=request.GET['location'])
+    if 'bedrooms' in request.GET:
+        properties = properties.filter(bedrooms=request.GET['bedrooms'])
+    if 'bathrooms' in request.GET:
+        properties = properties.filter(bathrooms=request.GET['bathrooms'])
+    return render(request, 'buyer/buyer_dashboard.html', {'properties': properties})
+
+def express_interest(request, property_id):
+    property = get_object_or_404(Property, id=property_id)
+    # buyer = request.user
+    # seller = property.owner
+    # send_mail(
+    #     'Interest in your property',
+    #     f'Hi {seller.first_name},\n\n{buyer.first_name} {buyer.last_name} is interested in your property: {property.title}.\nYou can contact them at {buyer.email}.',
+    #     'from@example.com',
+    #     [seller.email],
+    # )
+    return render(request, 'buyer/interest_expressed.html', {'property': property})
+
+

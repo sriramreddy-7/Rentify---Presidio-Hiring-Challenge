@@ -22,6 +22,16 @@ class Property(models.Model):
     nearby_colleges = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    price = models.FloatField(default=0)
 
     def __str__(self):
         return self.title
+
+
+class PropertyPhoto(models.Model):
+    property = models.ForeignKey(Property, on_delete=models.CASCADE, related_name='photos')
+    photo = models.ImageField(upload_to='property_photos/')
+    uploaded_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.property.title} - Photo"

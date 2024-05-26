@@ -1,0 +1,30 @@
+<!-- core/templates/seller_properties.html -->
+{% extends  'seller/navbar.html'%}
+
+{% block body %}
+<div class="container my-2 py-2">
+    <h2>My Properties</h2>
+    <a href="{% url 'post_property' %}" class="btn btn-success">Post New Property</a>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Title</th>
+                <th>Description</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for property in properties %}
+            <tr>
+                <td>{{ property.title }}</td>
+                <td>{{ property.description }}</td>
+               <td>
+                    <a href="{% url 'update_property' property.id %}" class="btn btn-primary">Edit</a>
+                    <a href="{% url 'delete_property' property.id %}" class="btn btn-danger">Delete</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
