@@ -44,6 +44,7 @@ urlpatterns = [
     path('express_interest/<int:property_id>/', views.express_interest, name='express_interest'),
     path('property_filter/', views.property_filter, name='property_filter'),
     path('property/<int:property_id>/', views.property_detail, name='property_detail'),
+    path("like_property/<int:property_id>/",views.like_property,name="like_property"),
 ]
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

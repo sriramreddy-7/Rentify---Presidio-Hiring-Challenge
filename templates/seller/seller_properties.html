@@ -1,30 +1,36 @@
-<!-- core/templates/seller_properties.html -->
-{% extends  'navbar.html'%}
+{% extends 'navbar.html' %}
 
 {% block body %}
 <div class="container my-2 py-2">
     <h2>My Properties</h2>
     <a href="{% url 'post_property' %}" class="btn btn-success">Post New Property</a>
-    <table class="table table-striped">
-        <thead>
-            <tr>
-                <th>Title</th>
-                <th>Description</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for property in properties %}
-            <tr>
-                <td>{{ property.title }}</td>
-                <td>{{ property.description }}</td>
-               <td>
-                    <a href="{% url 'update_property' property.id %}" class="btn btn-primary">Edit</a>
-                    <a href="{% url 'delete_property' property.id %}" class="btn btn-danger">Delete</a>
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+
+  <br>
+  <br>
+     <div class="row">
+      {% for property in properties %}
+    <div class="col-md-12 mb-3">
+      <div class="card">
+        <div class="row no-gutters">
+          <div class="col-md-4">
+            <img src="{{ property.photos.first.photo.url }}" class="card-img" alt="{{ property.title }}">
+          </div>
+          <div class="col-md-8">
+            <div class="card-body">
+                    <h5 class="card-title">{{ property.title }}</h5>
+                    <p class="card-text">{{ property.description }}</p>
+                    <p class="card-text"><strong>State:</strong> {{ property.state }}</p>
+                    <p class="card-text"><strong>Price:</strong> ${{ property.price }}</p>
+                    <div class="d-flex justify-content-end">
+                        <a href="{% url 'update_property' property.id %}" class="btn btn-primary mr-2">Edit</a>
+                        <a href="{% url 'delete_property' property.id %}" class="btn btn-danger">Delete</a>
+                    </div>
+                </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
 </div>
 {% endblock %}

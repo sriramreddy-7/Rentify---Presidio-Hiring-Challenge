@@ -2,9 +2,11 @@
 from django.shortcuts import render, redirect,get_object_or_404
 from django.contrib.auth import login, authenticate,logout
 from django.contrib.auth.models import User
-from rentals.models import Property ,UserProfile ,PropertyPhoto
+from rentals.models import Property ,UserProfile ,PropertyPhoto,Like
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse ,HttpResponse
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from django.core.mail import send_mail
 
 
 def index(request):
@@ -66,12 +68,23 @@ def user_logout(request):
 
 
 def seller_dashboard(request):
-    return render(request,'seller/seller_dashboard.html')
+    properties = Property.objects.filter(owner=request.user)
+    return render(request, 'seller/seller_dashboard.html', {'properties': properties})
 
 
 def buyer_dashboard(request):
-    properties = Property.objects.all()    
-    return render(request,'buyer/buyer_dashboard.html',{'properties': properties})
+    property_list = Property.objects.all()
+    paginator = Paginator(property_list, 10)  
+
+    page = request.GET.get('page')
+    try:
+        properties = paginator.page(page)
+    except PageNotAnInteger:
+        properties = paginator.page(1)
+    except EmptyPage:
+        properties = paginator.page(paginator.num_pages)
+
+    return render(request, 'buyer/buyer_dashboard.html', {'properties': properties})
 
 def post_property(request):
     if request.method == 'POST':
@@ -129,8 +142,12 @@ def update_property(request, property_id):
     if request.method == 'POST':
         property.title = request.POST['title']
         property.description = request.POST['description']
-        property.location = request.POST['location']
-        property.area = request.POST['area']
+        property.country = request.POST.get('country')
+        property.state = request.POST.get('state')
+        property.district = request.POST.get('district')
+        property.pincode = request.POST.get('pincode')
+        property.city = request.POST.get('city')
+        property.area = request.POST.get('area')
         property.bedrooms = request.POST['bedrooms']
         property.bathrooms = request.POST['bathrooms']
         property.nearby_hospitals = request.POST['nearby_hospitals']
@@ -188,16 +205,38 @@ def property_filter(request):
     return render(request, 'buyer/buyer_dashboard.html', {'properties': properties})
 
 
+from django.core.mail import send_mail
+from decouple import config
+
 def express_interest(request, property_id):
     property = get_object_or_404(Property, id=property_id)
-    # buyer = request.user
-    # seller = property.owner
-    # send_mail(
-    #     'Interest in your property',
-    #     f'Hi {seller.first_name},\n\n{buyer.first_name} {buyer.last_name} is interested in your property: {property.title}.\nYou can contact them at {buyer.email}.',
-    #     'from@example.com',
-    #     [seller.email],
-    # )
+    buyer = request.user
+    seller = property.owner
+
+    # Send email to seller
+    send_mail(
+        'Interest in your property',
+        f'Hi {seller.first_name},\n\n{buyer.first_name} {buyer.last_name} is interested in your property: {property.title}.\nYou can contact them at {buyer.email}.',
+        config('EMAIL_HOST_USER'),  
+        [seller.email],
+    )
+
+    # Send email to buyer
+    send_mail(
+        'Property details',
+        f'Hi {buyer.first_name},\n\nYou expressed interest in the property: {property.title}.\nSeller contact: {seller.email}',
+        config('EMAIL_HOST_USER'),  
+        [buyer.email],
+    )
+
     return render(request, 'buyer/interest_expressed.html', {'property': property})
 
 
+
+@login_required
+def like_property(request, property_id):
+    property = get_object_or_404(Property, id=property_id)
+    like, created = Like.objects.get_or_create(property=property, user=request.user)
+    if not created:
+        like.delete()  #
+    return redirect('buyer_dashboard')

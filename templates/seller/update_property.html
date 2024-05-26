@@ -1,4 +1,5 @@
-{% extends 'navbar.html'%} {% block body %}
+{% extends 'navbar.html'%} 
+{% block body %}
 <div class="container my-2 py-2">
   <h2>Update Property</h2>
   <form method="post">
@@ -26,13 +27,57 @@
       >
     </div>
     <div class="form-group">
-      <label for="location">Location:</label>
+      <label for="country">Country:</label>
       <input
         type="text"
         class="form-control"
-        id="location"
-        name="location"
-        value="{{ property.location }}"
+        id="country"
+        name="country"
+        value="{{ property.country }}"
+        required
+      />
+    </div>
+    <div class="form-group">
+      <label for="state">State:</label>
+      <input
+        type="text"
+        class="form-control"
+        id="state"
+        name="state"
+        value="{{ property.state }}"
+        required
+      />
+    </div>
+    <div class="form-group">
+      <label for="district">District:</label>
+      <input
+        type="text"
+        class="form-control"
+        id="district"
+        name="district"
+        value="{{ property.district }}"
+        required
+      />
+    </div>
+    <div class="form-group">
+      <label for="pincode">Pincode:</label>
+      <input
+        type="text"
+        class="form-control"
+        id="pincode"
+        name="pincode"
+        value="{{ property.pincode }}"
+        required
+      />
+    </div>
+    <div class="form-group">
+      <label for="city">City:</label>
+      <input
+        type="text"
+        class="form-control"
+        id="city"
+        name="city"
+        value="{{ property.city }}"
         required
       />
     </div>
@@ -90,6 +135,17 @@
       >
 {{ property.nearby_colleges }}</textarea
       >
+    </div>
+    <div class="form-group">
+      <label for="price">Price:</label>
+      <input
+        type="number"
+        class="form-control"
+        id="price"
+        name="price"
+        value="{{ property.price }}"
+        required
+      />
     </div>
     <button type="submit" class="btn btn-primary">Update Property</button>
   </form>

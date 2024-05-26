@@ -39,3 +39,8 @@ class PropertyPhoto(models.Model):
 
     def __str__(self):
         return f"{self.property.title} - Photo"
+    
+class Like(models.Model):
+    property = models.ForeignKey(Property, on_delete=models.CASCADE, related_name='likes')
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)
