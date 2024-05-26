@@ -1,6 +1,6 @@
 # core/views.py
 from django.shortcuts import render, redirect,get_object_or_404
-from django.contrib.auth import login, authenticate
+from django.contrib.auth import login, authenticate,logout
 from django.contrib.auth.models import User
 from rentals.models import Property ,UserProfile ,PropertyPhoto
 from django.contrib.auth.decorators import login_required
@@ -60,6 +60,11 @@ def user_login(request):
     return render(request, 'login/login.html')
 
 
+def user_logout(request):
+    logout(request)
+    return redirect('index')
+
+
 def seller_dashboard(request):
     return render(request,'seller/seller_dashboard.html')
 
@@ -72,24 +77,34 @@ def post_property(request):
     if request.method == 'POST':
         title = request.POST['title']
         description = request.POST['description']
-        location = request.POST['location']
-        area = request.POST['area']
+        country = request.POST.get('country')
+        state = request.POST.get('state', )
+        district = request.POST.get('district')
+        pincode = request.POST.get('pincode')
+        city = request.POST.get('city' )
+        area = request.POST.get('area')
         bedrooms = request.POST['bedrooms']
         bathrooms = request.POST['bathrooms']
         nearby_hospitals = request.POST['nearby_hospitals']
         nearby_colleges = request.POST['nearby_colleges']
+        price = request.POST['price']
         photos = request.FILES.getlist('photos')
 
         property = Property(
             owner=request.user,
             title=title,
             description=description,
-            location=location,
+            country=country,
+            state=state,
+            district=district,
+            pincode=pincode,
+            city=city,
             area=area,
             bedrooms=bedrooms,
             bathrooms=bathrooms,
             nearby_hospitals=nearby_hospitals,
-            nearby_colleges=nearby_colleges
+            nearby_colleges=nearby_colleges,
+            price=price
         )
         property.save()
 
@@ -146,13 +161,32 @@ def property_detail(request, property_id):
 
 def property_filter(request):
     properties = Property.objects.all()
-    if 'location' in request.GET:
-        properties = properties.filter(location__icontains=request.GET['location'])
+
     if 'bedrooms' in request.GET:
         properties = properties.filter(bedrooms=request.GET['bedrooms'])
     if 'bathrooms' in request.GET:
         properties = properties.filter(bathrooms=request.GET['bathrooms'])
+    if 'country' in request.GET:
+        properties = properties.filter(country=request.GET['country'])
+    if 'state' in request.GET:
+        properties = properties.filter(state=request.GET['state'])
+    if 'district' in request.GET:
+        properties = properties.filter(district=request.GET['district'])
+    if 'pincode' in request.GET:
+        properties = properties.filter(pincode=request.GET['pincode'])
+    if 'city' in request.GET:
+        properties = properties.filter(city=request.GET['city'])
+    if 'area' in request.GET:
+        properties = properties.filter(area=request.GET['area'])
+    if 'nearby_hospitals' in request.GET:
+        properties = properties.filter(nearby_hospitals__icontains=request.GET['nearby_hospitals'])
+    if 'nearby_colleges' in request.GET:
+        properties = properties.filter(nearby_colleges__icontains=request.GET['nearby_colleges'])
+    if 'price' in request.GET:
+        properties = properties.filter(price=request.GET['price'])
+
     return render(request, 'buyer/buyer_dashboard.html', {'properties': properties})
+
 
 def express_interest(request, property_id):
     property = get_object_or_404(Property, id=property_id)

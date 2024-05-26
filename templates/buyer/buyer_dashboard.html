@@ -1,45 +1,138 @@
-{% extends  'buyer/navbar.html'%}
-
+{% extends 'navbar.html' %}
 {% block body %}
 <div class="container my-2 py-2">
-  
-    <h2>Properties</h2>
-    <form method="get" action="{% url 'property_filter' %}">
-        <div class="form-group">
-            <label for="location">Location:</label>
-            <input type="text" class="form-control" id="location" name="location">
+  <h2>Properties</h2>
+  <div class="row mb-3">
+    <div class="col-md-12">
+      <form method="get" action="{% url 'property_filter' %}" class="form-inline">
+        <div class="row">
+          <div class="col-md-3 mb-2">
+            <label for="bedrooms" class="mr-2">Bedrooms:</label>
+            <select class="form-control" id="bedrooms" name="bedrooms">
+              {% for property in properties %}
+              <option value="{{ property.bedrooms }}">{{ property.bedrooms }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="col-md-3 mb-2">
+            <label for="bathrooms" class="mr-2">Bathrooms:</label>
+            <select class="form-control" id="bathrooms" name="bathrooms">
+              {% for property in properties %}
+              <option value="{{ property.bathrooms }}">{{ property.bathrooms }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="col-md-3 mb-2">
+            <label for="country" class="mr-2">Country:</label>
+            <select class="form-control" id="country" name="country">
+              {% for property in properties %}
+              <option value="{{ property.country }}">{{ property.country }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="col-md-3 mb-2">
+            <label for="state" class="mr-2">State:</label>
+            <select class="form-control" id="state" name="state">
+              {% for property in properties %}
+              <option value="{{ property.state }}">{{ property.state }}</option>
+              {% endfor %}
+            </select>
+          </div>
         </div>
-        <div class="form-group">
-            <label for="bedrooms">Bedrooms:</label>
-            <input type="number" class="form-control" id="bedrooms" name="bedrooms">
+        <div class="row">
+          <div class="col-md-3 mb-2">
+            <label for="district" class="mr-2">District:</label>
+            <select class="form-control" id="district" name="district">
+              {% for property in properties %}
+              <option value="{{ property.district }}">{{ property.district }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="col-md-3 mb-2">
+            <label for="pincode" class="mr-2">Pincode:</label>
+            <select class="form-control" id="pincode" name="pincode">
+              {% for property in properties %}
+              <option value="{{ property.pincode }}">{{ property.pincode }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="col-md-3 mb-2">
+            <label for="city" class="mr-2">City:</label>
+            <select class="form-control" id="city" name="city">
+              {% for property in properties %}
+              <option value="{{ property.city }}">{{ property.city }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="col-md-3 mb-2">
+            <label for="area" class="mr-2">Area:</label>
+            <select class="form-control" id="area" name="area">
+              {% for property in properties %}
+              <option value="{{ property.area }}">{{ property.area }}</option>
+              {% endfor %}
+            </select>
+          </div>
         </div>
-        <div class="form-group">
-            <label for="bathrooms">Bathrooms:</label>
-            <input type="number" class="form-control" id="bathrooms" name="bathrooms">
+        <div class="row">
+          <div class="col-md-3 mb-2">
+            <label for="nearby_hospitals" class="mr-2">Nearby Hospitals:</label>
+            <select class="form-control" id="nearby_hospitals" name="nearby_hospitals">
+              {% for property in properties %}
+              <option value="{{ property.nearby_hospitals }}">{{ property.nearby_hospitals }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          &nbsp;&nbsp;
+          <div class="col-md-3 mb-2">
+            <label for="nearby_colleges" class="mr-2">Nearby Colleges:</label>
+            <select class="form-control" id="nearby_colleges" name="nearby_colleges">
+              {% for property in properties %}
+              <option value="{{ property.nearby_colleges }}">{{ property.nearby_colleges }}</option>
+              {% endfor %}
+            </select>
+             &nbsp;&nbsp;
+          </div>
+         
+          <div class="col-md-3 mb-2">
+            <label for="price" class="mr-2">Price:</label>
+            <select class="form-control" id="price" name="price">
+              {% for property in properties %}
+              <option value="{{ property.price }}">{{ property.price }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="col-md-3 mb-2">
+            <button type="submit" class="btn btn-primary">Apply Filters</button>
+          </div>
         </div>
-        <button type="submit" class="btn btn-primary">Apply Filters</button>
-    </form>
-    <div class="row">
-        {% for property in properties %}
-        <div class="col-md-4">
-            <div class="card">
-                <img src="{{ property.photos.first.photo.url }}" class="card-img-top" alt="{{ property.title }}">
-                <div class="card-body">
-                    <h5 class="card-title">{{ property.title }}</h5>
-                    <p class="card-text">{{ property.description }}</p>
-                    <a href="{% url 'property_detail' property.id %}" class="btn btn-primary">View Details</a>
-                    {% if user.is_authenticated %}
-                    <form method="post" action="{% url 'express_interest' property.id %}">
-                        {% csrf_token %}
-                        <button type="submit" class="btn btn-success mt-2">I'm Interested</button>
-                    </form>
-                    {% endif %}
-                </div>
-            </div>
-        </div>
-        {% endfor %}
+      </form>
     </div>
+  </div>
+  <div class="row">
+    {% for property in properties %}
+    <div class="col-md-12 mb-3">
+      <div class="card">
+        <div class="row no-gutters">
+          <div class="col-md-4">
+            <img src="{{ property.photos.first.photo.url }}" class="card-img" alt="{{ property.title }}">
+          </div>
+          <div class="col-md-8">
+            <div class="card-body">
+              <h5 class="card-title">{{ property.title }}</h5>
+              <p class="card-text">{{ property.description }}</p>
+              <a href="{% url 'property_detail' property.id %}" class="btn btn-primary">View Details</a>
+              {% if user.is_authenticated %}
+              <form method="post" action="{% url 'express_interest' property.id %}">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-success mt-2">I'm Interested</button>
+              </form>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
 </div>
-
 {% endblock %}
-
