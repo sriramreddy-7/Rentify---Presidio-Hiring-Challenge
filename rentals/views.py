@@ -213,7 +213,7 @@ def express_interest(request, property_id):
     buyer = request.user
     seller = property.owner
 
-    # Send email to seller
+   
     send_mail(
         'Interest in your property',
         f'Hi {seller.first_name},\n\n{buyer.first_name} {buyer.last_name} is interested in your property: {property.title}.\nYou can contact them at {buyer.email}.',
@@ -221,7 +221,7 @@ def express_interest(request, property_id):
         [seller.email],
     )
 
-    # Send email to buyer
+    
     send_mail(
         'Property details',
         f'Hi {buyer.first_name},\n\nYou expressed interest in the property: {property.title}.\nSeller contact: {seller.email}',
