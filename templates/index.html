@@ -1,14 +1,20 @@
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Rentify</title>
-  </head>
-  <body>
-    <h1>Welcome to Rentify</h1>
-    <a href="{% url 'register' %}" target="_blank" type="button">Register</a>
-    <br>
-    <a href="{% url 'user_login' %}" target="_blank" type="button">Login</a>
-  </body>
-</html>
+{% extends 'navbar.html' %}
+{% load static %}
+{% block body %}
+      <div class="jumbotron">
+        <h1 class="display-4">Rentify</h1>
+        <p class="lead">Where Renting Meets Simplicity</p>
+        <hr class="my-4" />
+        <p>
+          Find your perfect rental property or list your property for rent
+          hassle-free with Rentify.
+        </p>
+        <a class="btn btn-pink btn-lg" href="{% url 'register' %}" role="button"
+          >Get Started</a
+        >
+      </div>
+    </div>
+
+{% endblock %}
+
+    
