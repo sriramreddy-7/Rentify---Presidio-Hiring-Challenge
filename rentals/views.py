@@ -1,16 +1,15 @@
-# core/views.py
-from django.shortcuts import render, redirect,get_object_or_404
-from django.contrib.auth import login, authenticate,logout
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.models import User
-from rentals.models import Property ,UserProfile ,PropertyPhoto,Like
+from rentals.models import Property, UserProfile, PropertyPhoto, Like
 from django.contrib.auth.decorators import login_required
-from django.http import JsonResponse ,HttpResponse
+from django.http import JsonResponse, HttpResponse
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.core.mail import send_mail
-
+from decouple import config
 
 def index(request):
-    return render(request,'index.html')
+    return render(request, 'index.html')
 
 def register(request):
     if request.method == 'POST':
@@ -20,13 +19,7 @@ def register(request):
         password = request.POST['password']
         email = request.POST['email']
         phone_number = request.POST['phone_number']
-        user_type= request.POST.get('user_type')
-        # if user_type=="buyer":
-        #     is_buyer=True
-        # else:
-        #     is_buyer=False
-        # print(is_buyer,"IS BUyer")
-        print(request.POST)
+        user_type = request.POST.get('user_type')
         
         user = User.objects.create_user(username=username, password=password, first_name=first_name, last_name=last_name, email=email)
         user.save()
@@ -52,26 +45,25 @@ def user_login(request):
             if user_profile.user_type == user_type:
                 login(request, user)
                 if user_type == "buyer":
-                    return redirect('buyer_dashboard')  # Replace with the actual URL name for buyer dashboard
+                    return redirect('buyer_dashboard')
                 elif user_type == "seller":
-                    return redirect('seller_dashboard')  # Replace with the actual URL name for seller dashboard
+                    return redirect('seller_dashboard')
             else:
                 return HttpResponse("Invalid user type")
         else:
             return HttpResponse("Invalid login details")
     return render(request, 'login/login.html')
 
-
 def user_logout(request):
     logout(request)
     return redirect('index')
 
-
+@login_required
 def seller_dashboard(request):
     properties = Property.objects.filter(owner=request.user)
     return render(request, 'seller/seller_dashboard.html', {'properties': properties})
 
-
+@login_required
 def buyer_dashboard(request):
     property_list = Property.objects.all()
     paginator = Paginator(property_list, 10)  
@@ -86,15 +78,16 @@ def buyer_dashboard(request):
 
     return render(request, 'buyer/buyer_dashboard.html', {'properties': properties})
 
+@login_required
 def post_property(request):
     if request.method == 'POST':
         title = request.POST['title']
         description = request.POST['description']
         country = request.POST.get('country')
-        state = request.POST.get('state', )
+        state = request.POST.get('state')
         district = request.POST.get('district')
         pincode = request.POST.get('pincode')
-        city = request.POST.get('city' )
+        city = request.POST.get('city')
         area = request.POST.get('area')
         bedrooms = request.POST['bedrooms']
         bathrooms = request.POST['bathrooms']
@@ -128,12 +121,10 @@ def post_property(request):
 
     return render(request, 'seller/post_property.html')
 
-
+@login_required
 def seller_properties(request):
     properties = Property.objects.filter(owner=request.user)
     return render(request, 'seller/seller_properties.html', {'properties': properties})
-
-
 
 @login_required
 def update_property(request, property_id):
@@ -164,18 +155,14 @@ def delete_property(request, property_id):
     if request.method == 'POST':
         property.delete()
         return redirect('seller_properties')
-    return render(request, 'seller/delete_property.html', {'property': property})  
+    return render(request, 'seller/delete_property.html', {'property': property})
 
-
-
-###buyer views
-
-
+@login_required
 def property_detail(request, property_id):
     property = get_object_or_404(Property, id=property_id)
     return render(request, 'buyer/property_detail.html', {'property': property})
 
-
+@login_required
 def property_filter(request):
     properties = Property.objects.all()
 
@@ -204,39 +191,32 @@ def property_filter(request):
 
     return render(request, 'buyer/buyer_dashboard.html', {'properties': properties})
 
-
-from django.core.mail import send_mail
-from decouple import config
-
+@login_required
 def express_interest(request, property_id):
     property = get_object_or_404(Property, id=property_id)
     buyer = request.user
     seller = property.owner
 
-   
     send_mail(
         'Interest in your property',
         f'Hi {seller.first_name},\n\n{buyer.first_name} {buyer.last_name} is interested in your property: {property.title}.\nYou can contact them at {buyer.email}.',
-        config('EMAIL_HOST_USER'),  
+        config('EMAIL_HOST_USER'),
         [seller.email],
     )
 
-    
     send_mail(
         'Property details',
         f'Hi {buyer.first_name},\n\nYou expressed interest in the property: {property.title}.\nSeller contact: {seller.email}',
-        config('EMAIL_HOST_USER'),  
+        config('EMAIL_HOST_USER'),
         [buyer.email],
     )
 
     return render(request, 'buyer/interest_expressed.html', {'property': property})
-
-
 
 @login_required
 def like_property(request, property_id):
     property = get_object_or_404(Property, id=property_id)
     like, created = Like.objects.get_or_create(property=property, user=request.user)
     if not created:
-        like.delete()  #
+        like.delete()
     return redirect('buyer_dashboard')

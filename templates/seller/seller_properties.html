@@ -20,7 +20,7 @@
                     <h5 class="card-title">{{ property.title }}</h5>
                     <p class="card-text">{{ property.description }}</p>
                     <p class="card-text"><strong>State:</strong> {{ property.state }}</p>
-                    <p class="card-text"><strong>Price:</strong> ${{ property.price }}</p>
+                    <p class="card-text"><strong>Price:</strong>  &#8377; {{ property.price }} /-</p>
                     <div class="d-flex justify-content-end">
                         <a href="{% url 'update_property' property.id %}" class="btn btn-primary mr-2">Edit</a>
                         <a href="{% url 'delete_property' property.id %}" class="btn btn-danger">Delete</a>
